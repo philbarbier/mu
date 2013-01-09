@@ -43,7 +43,7 @@ $route['404_override'] = '';
 
 $route['get'] = "index/get";
 $route['set'] = "index/set";
-$route['getjob'] = "index/getjob";
+$route['jobstatus'] = "index/jobstatus";
 $route['updatejob'] = "index/updatejob";
 
 /* End of file routes.php */

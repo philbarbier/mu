@@ -1,9 +1,14 @@
 <?
 
-$baseurl = 'http://zeepri.me/fire/json?';
+$baseurl = 'http://zeepri.me/fire/json';
 
 $pagevar = '&p=';
 $perpagevar = '&pp=';
+
+$url = $baseurl.'?'.$pagevar.'1'.$perpagevar.'1';
+$contents = file_get_contents($url);
+if(!$contents) die;
+$data = json_decode($contents); //, true);
 
 $direct = true;
 $pi = pathinfo($_SERVER['SCRIPT_FILENAME']);
@@ -13,21 +18,18 @@ for($i=0;$i<(count($p)-1);$i++) {
     $mydir .= $p[$i].'/';
 }
 require_once($mydir.'functions.php');
-$mashupid = 1;
+$jd = jobStatus($baseurl, $contents);
+print_r($jd);
+$jobdata = json_decode($jd);
+if ($jobdata->status=='error') die;
 
-/** 
 
-ask API what it should get for this ID (base off URL supplied)
+$page = $jobdata->page;
+$perpage = $jobdata->perPage;
 
-*/
+$mashupid = $jobdata->job->mashup_id;
 
-//getJob();
-
-$page = 1;
-$perpage = 10;
-
-$url = $baseurl.$pagevar.$page.$perpagevar.$perpage;
-
+$url = $baseurl.'?'.$pagevar.$page.$perpagevar.$perpage;
 $contents = file_get_contents($url);
 
 $data = json_decode($contents); //, true);
@@ -38,7 +40,8 @@ echo "<pre>";
 
 echo "\nIncidents: " . $data->incidentCount . " -- Pages: " . $data->pages . " -- perPage: " . $data->perPage . " -- currentPage: " . $data->currentPage; 
 
-$done = 0;
+// do we need to keep track of the total completed here?
+$done = 0; //($jobdata->job->done > 0) ? $jobdata->job->done : 0;
 $batchComplete = false;
 
 foreach($data->incidents as $incident) {
@@ -68,16 +71,17 @@ foreach($data->incidents as $incident) {
     $searchaddress .= ','.$city;
     if (!isset($incident->city)) $incident->city = $city;
     if (saveIncident($mashupid, $incident, getLatLong($searchaddress))) {
-        $done++;   
+        $done++;
+        $lastid = $incident->incident_id;
     }
     
 }
 
-
+$totaldone = $jobdata->job->done + $done;
 if ($done == $perpage) {
     $batchComplete = true;
 }
 
 if ($batchComplete) {
-    updateJob($baseurl, $data->incidentCount, $data->pages, $data->perPage, $data->currentPage); 
+    updateJob($mashupid, $baseurl, $data->incidentCount, $data->pages, $data->perPage, $data->currentPage, $totaldone, $lastid); 
 }

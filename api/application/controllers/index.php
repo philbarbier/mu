@@ -37,7 +37,7 @@ class Index extends CI_Controller {
             die; 
         } else {
             // add it
-            //$res = $this->Incidents->add_incident();
+            $res = $this->Incidents->add_incident();
             $status = ($res) ? 'ok' : 'error';
             // update job progress
             echo json_encode(array('status' => $status));
@@ -51,6 +51,7 @@ class Index extends CI_Controller {
     }
 
     public function updatejob() {
+        error_log(json_encode($this->input->post()));
         error_log('hitting update API');
         if ($this->Jobs->update()) {
             $status = 'ok';
@@ -60,7 +61,9 @@ class Index extends CI_Controller {
         echo json_encode(array('status' => $status));
         die;
     }
-    public function getjob() {
-
+    public function jobstatus() {
+        $status = $this->Jobs->getJobStatus();
+        echo json_encode($status);
+        die;
     }
 }
