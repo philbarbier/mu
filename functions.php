@@ -7,10 +7,19 @@ function getLatLong($address) {
     if (strlen($address)==0||empty($address)||!isset($address)) return false;
     $baseurl = 'http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=';
     $url = $baseurl . urlencode($address);
-    $response = json_decode(file_get_contents($url));
+    $result = file_get_contents($url);
+    error_log('geocoding: ' . $url);
+    error_log('result: ' . $result);
+    $response = json_decode($result);
+    if ($response->status=="OVER_QUERY_LIMIT") {
+        // die so we don't update the job or save the incident, we'd want to retry this again
+        die;
+    }
     $latlong = array();
-    $latlong['lat'] = $response->results[0]->geometry->location->lat;
-    $latlong['lng'] = $response->results[0]->geometry->location->lng;
+    if ($response->results[0]) {
+        $latlong['lat'] = $response->results[0]->geometry->location->lat;
+        $latlong['lng'] = $response->results[0]->geometry->location->lng;
+    }
     return $latlong;
 }
 

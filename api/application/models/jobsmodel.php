@@ -32,12 +32,18 @@ class JobsModel extends CI_Model {
         $data['status'] = 'ok';
         $data['job'] = $job;
         $data['perPage'] = $job->perPage;
+        error_log('amount left: ' . ($job->total - $job->done));
         if (is_null($job->last_id_processed)||$job->last_id_processed=='') {
             //start from the start
             $data['page'] = 1;
         } else {
-            if ($job->done < $job->total) {
+            if ($job->done < $job->total) { // && (($job->total - $job->done) <= $job->perPage)) {
                 $data['page'] = ceil($job->done / $job->perPage) + 1; 
+                
+                if (($job->total - $job->done) <= $job->perPage) {
+                    error_log('adjusting per page');
+                    $data['perPage'] = $job->total - $job->done;
+                }
             }
         }
         error_log(json_encode($data)); 
