@@ -41,6 +41,7 @@
 $route['default_controller'] = "incidents";
 $route['404_override'] = '';
 
+$route['view'] = "incidents/view";
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

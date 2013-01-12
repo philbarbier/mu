@@ -1,3 +1,4 @@
+
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsRvkq_6P9NcGuzUTBWNDnuRK3WirwuKM&sensor=false"></script>
 
@@ -9,8 +10,8 @@
         console.log('loading');
 
         var mapOptions = {
-            center: new google.maps.LatLng(43.42,-79.20),
-            zoom: 8,
+            center: new google.maps.LatLng(43.75,-79.40),
+            zoom: 10,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         }; // default map options
 
@@ -21,21 +22,21 @@
         // retrieve all known incidents
         <?
             foreach($incidents as $kv) {
-                 if (is_array($kv)) {
-                    if ($kv['location_lat'] && $kv['location_long']) {
+                 if (is_object($kv)) {
+                    if ($kv->latitude && $kv->longitude) {
         ?>
 
-        var ll = new google.maps.LatLng(<?=$kv['location_lat'] ?>, <?=$kv['location_long'] ?>);
+        var ll = new google.maps.LatLng(<?=$kv->latitude ?>, <?=$kv->longitude ?>);
         var mo = {clickable: 'true', draggable: 'false', map: 'map', position: ll};
 
-        incidents[<?=$kv['id'] ?>] = <?=json_encode($kv) ?>;
+        incidents[<?=$kv->id ?>] = <?=json_encode($kv) ?>;
         
-        var content = '<?=$kv['title'] ?> - <?=$kv['incidentdate'] ?>';
+        var content = '<?=$kv->actual_timestamp ?> - <?=$kv->data ?>';
 
-        marker[<?=$kv['id'] ?>] = new google.maps.Marker({position: ll, map: map, title: '<?=$kv['title'] ?>'});
-        infoWindow[<?=$kv['id'] ?>] = new google.maps.InfoWindow({content: content});
-        google.maps.event.addListener(marker[<?=$kv['id'] ?>], 'click', function() {
-            infoWindow[<?=$kv['id'] ?>].open(map, marker[<?=$kv['id'] ?>]); 
+        marker[<?=$kv->id ?>] = new google.maps.Marker({position: ll, map: map, title: '<?=$kv->actual_timestamp ?>'});
+        infoWindow[<?=$kv->id ?>] = new google.maps.InfoWindow({content: content});
+        google.maps.event.addListener(marker[<?=$kv->id ?>], 'click', function() {
+            infoWindow[<?=$kv->id ?>].open(map, marker[<?=$kv->id ?>]); 
         });
         <?
                     }
@@ -50,7 +51,7 @@
 
 <style type="text/css">
     #map_canvas {
-        width:650px;
+        width:850px;
         height:400px;
     }
 </style>

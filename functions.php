@@ -9,10 +9,11 @@ function getLatLong($address) {
     $url = $baseurl . urlencode($address);
     $result = file_get_contents($url);
     error_log('geocoding: ' . $url);
-    error_log('result: ' . $result);
+    //error_log('result: ' . json_encode($result));
     $response = json_decode($result);
     if ($response->status=="OVER_QUERY_LIMIT") {
         // die so we don't update the job or save the incident, we'd want to retry this again
+        error_log('Exceeded Google limit, exiting');
         die;
     }
     $latlong = array();

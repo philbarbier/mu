@@ -41,7 +41,8 @@
 $route['default_controller'] = "index";
 $route['404_override'] = '';
 
-$route['get'] = "index/get";
+$route['getmu'] = "index/getmu";
+$route['getinc'] = "index/getinc";
 $route['set'] = "index/set";
 $route['jobstatus'] = "index/jobstatus";
 $route['updatejob'] = "index/updatejob";

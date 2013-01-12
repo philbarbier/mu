@@ -73,11 +73,12 @@ foreach($data->incidents as $incident) {
     if (saveIncident($mashupid, $incident, getLatLong($searchaddress))) {
         $done++;
         $lastid = $incident->incident_id;
+        $totaldone = $jobdata->job->done + $done;
+        updateJob($mashupid, $baseurl, $data->incidentCount, $data->pages, $data->perPage, $data->currentPage, $totaldone, $lastid); 
     }
     
 }
 
-$totaldone = $jobdata->job->done + $done;
 if ($done == $perpage) {
     $batchComplete = true;
 }

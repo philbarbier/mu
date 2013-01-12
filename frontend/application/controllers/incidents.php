@@ -24,15 +24,22 @@ class Incidents extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index()
-	{
+	public function index() {
         $data = array();
-        $data['incidents'] = $this->Incidents->all(); 
-        $this->load->view('incidents', $data);
+        $text = file_get_contents('http://mu-api.philnic.lan/index.php/getmu');
+        $mashups = json_decode($text);
+        $data['mashups'] = json_decode($text);
+        $this->load->view('mashups', $data);
 	}
 
-    public function add()
-    {
+    public function view() {
+        $data = array();
+        $text = file_get_contents('http://mu-api.philnic.lan/index.php/getinc?muid='.$this->input->get('muid'));
+        $data['incidents'] = json_decode($text);
+        $this->load->view('incidents', $data);
+    }
+
+    public function add() {
         if (!$_POST) {
             $this->load->view('add_incident');
         } else {

@@ -7,25 +7,10 @@ class Index extends CI_Controller {
         parent::__construct();
         $this->load->model('incidentsmodel', 'Incidents', TRUE);
         $this->load->model('jobsmodel', 'Jobs', TRUE);
+        $this->load->model('mashupsmodel', 'Mashups', TRUE);
     }
 
-
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -  
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see http://codeigniter.com/user_guide/general/urls.html
-	 */
-	public function index()
+    public function index()
 	{
         echo json_encode(array('status' => 'error')); 
         die;
@@ -45,8 +30,17 @@ class Index extends CI_Controller {
         }
     }
 
-    public function get() {
-        echo json_encode(array('status' => 'error')); 
+    public function getmu() {
+        //echo json_encode(array('status' => 'error'));
+        // get all mashups
+        $data = $this->Mashups->getAllActive();
+        echo json_encode($data);
+        die;
+    }
+
+    public function getinc() {
+        $data = $this->Incidents->all();
+        echo json_encode($data);
         die;
     }
 
