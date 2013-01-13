@@ -18,6 +18,7 @@ class IncidentsModel extends CI_Model {
         
         $this->db->from('incidents');
         $this->db->where(array('mashup_id'=>$this->input->get('muid')));
+        $this->db->order_by('epoch_timestamp', 'desc');
         $query = $this->db->get();
         $data = array();
 
