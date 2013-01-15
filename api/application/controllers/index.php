@@ -8,6 +8,8 @@ class Index extends CI_Controller {
         $this->load->model('incidentsmodel', 'Incidents', TRUE);
         $this->load->model('jobsmodel', 'Jobs', TRUE);
         $this->load->model('mashupsmodel', 'Mashups', TRUE);
+        // we only spit out JSON here
+        header('Content-type: application/javascript');
     }
 
     public function index()
@@ -39,14 +41,19 @@ class Index extends CI_Controller {
     }
 
     public function getinc() {
-        $data = $this->Incidents->all();
+        $data = array();
+        if (!$this->input->get('callback')) {
+            $data = $this->Incidents->all();
+        } else {
+            $data = $this->Incidents->filtered();
+        }
         echo json_encode($data);
         die;
     }
 
     public function updatejob() {
-        error_log(json_encode($this->input->post()));
-        error_log('hitting update API');
+        //error_log(json_encode($this->input->post()));
+        //error_log('hitting update API');
         if ($this->Jobs->update()) {
             $status = 'ok';
         } else {

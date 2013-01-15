@@ -8,7 +8,6 @@ class JobsModel extends CI_Model {
 
     public function update() {
         $this->db->where(array('url'=>$this->input->post('url'),'mashup_id'=>$this->input->post('mashupid')));
-        error_log('looking for url: ' . $this->input->post('url')); 
         $data = array();
         $data['last_id_processed'] = $this->input->post('lastid');
         $data['done'] = $this->input->post('done');
@@ -41,8 +40,8 @@ class JobsModel extends CI_Model {
                 $data['page'] = ceil($job->done / $job->perPage) + 1; 
                 
                 if (($job->total - $job->done) <= $job->perPage) {
-                    error_log('adjusting per page');
-                    $data['perPage'] = $job->total - $job->done;
+                    error_log('adjusting per page to: '.($job->total - $job->done));
+                    //$data['perPage'] = $job->total - $job->done;
                 }
             }
         }

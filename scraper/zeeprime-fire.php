@@ -20,6 +20,7 @@ for($i=0;$i<(count($p)-1);$i++) {
 require_once($mydir.'functions.php');
 $jd = jobStatus($baseurl, $contents);
 print_r($jd);
+echo "\n";
 $jobdata = json_decode($jd);
 if ($jobdata->status=='error') die;
 
@@ -30,7 +31,13 @@ $perpage = $jobdata->perPage;
 $mashupid = $jobdata->job->mashup_id;
 
 $url = $baseurl.'?'.$pagevar.$page.$perpagevar.$perpage;
+error_log('using URL: ' . $url);
 $contents = file_get_contents($url);
+
+if (!$contents) {
+    error_log('Error with datasource ('.$url.'). Exiting.');
+    die;
+}
 
 $data = json_decode($contents); //, true);
 
