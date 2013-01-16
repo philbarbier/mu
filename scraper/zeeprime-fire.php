@@ -1,6 +1,6 @@
 <?
 
-$baseurl = 'http://zeepri.me/fire/json';
+$baseurl = 'http://fire.zeepri.me/json'; // http://zeepri.me/fire/json';
 
 $pagevar = '&p=';
 $perpagevar = '&pp=';
@@ -22,8 +22,7 @@ $jd = jobStatus($baseurl, $contents);
 print_r($jd);
 echo "\n";
 $jobdata = json_decode($jd);
-if ($jobdata->status=='error') die;
-
+if ((@$jobdata->status=='error') || !$jobdata) die;
 
 $page = $jobdata->page;
 $perpage = $jobdata->perPage;
@@ -50,6 +49,16 @@ echo "\nIncidents: " . $data->incidentCount . " -- Pages: " . $data->pages . " -
 // do we need to keep track of the total completed here?
 $done = 0; //($jobdata->job->done > 0) ? $jobdata->job->done : 0;
 $batchComplete = false;
+
+$inccount = 0;
+foreach($data->incidents as $inc) {
+    $inccount++;
+}
+
+if ($inccount != $data->perPage) {
+    error_log('ci: ' . $inccount . ' -- pp: ' . $data->perPage . ' -- exiting insuff');
+    die;
+}
 
 foreach($data->incidents as $incident) {
 

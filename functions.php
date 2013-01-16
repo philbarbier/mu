@@ -8,7 +8,7 @@ function getLatLong($address) {
     $baseurl = 'http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=';
     $url = $baseurl . urlencode($address);
     $result = file_get_contents($url);
-    error_log('geocoding: ' . $url);
+    //error_log('geocoding: ' . $url);
     //error_log('result: ' . json_encode($result));
     $response = json_decode($result);
     if ($response->status=="OVER_QUERY_LIMIT") {
@@ -39,17 +39,13 @@ function saveIncident($mashupid, $inc, $latlng) {
     // @TODO make these URLs nicer!
     $api_url = 'http://mu-api.seepies.net/index.php/set';
     $api_url = 'http://mu-api.philnic.lan/index.php/set'; // hitting itself, needs internal URL
-
     $fields = array('epoch_timestamp'=>date('U',strtotime($inc->dispatch_time)), 'actual_timestamp'=>$inc->dispatch_time, 'latitude'=>$latlng['lat'], 'longitude'=>$latlng['lng'], 'mashupid'=>$mashupid, 'data'=>json_encode($inc));
-
     return sendCurlPost($api_url, $fields);
 }
 
 function updateJob($mashupid, $url,$incidentCount, $pages, $perPage, $currentPage, $done, $lastid) {
     $apiurl = 'http://mu-api.philnic.lan/index.php/updatejob';
     $data = array('mashupid'=>$mashupid, 'url'=>$url, 'total'=>$incidentCount, 'done'=>$done, 'lastid'=>$lastid);
-    echo "\nposting: ";
-    print_r($data);
     $response = sendCurlPost($apiurl, $data);
 }
 

@@ -9,7 +9,7 @@
 var incidentArray = [];
 var marker = [];
 var infoWindow = [];
-var map;
+var map, bounds, ne, sw;
 var mid = 0;
 
 $(document).ready(function() {
@@ -23,7 +23,13 @@ $(document).ready(function() {
     setTimeout(function() {
         loadIncidents(true);
     },500);
-       
+
+    google.maps.event.addListener(map, 'idle', function() {
+        bounds = map.getBounds();
+        ne = bounds.getNorthEast();
+        sw = bounds.getSouthWest();
+    });
+
     $('#fromdate').datepicker();
     $('#todate').datepicker();
 
@@ -40,24 +46,35 @@ function loadIncidents(firstload) {
     } else {
         clearMarkers();
         //ajax with filters
-        $.ajax({ 
-                url: "http://mu-api.philnic.lan/index.php/getinc?callback=?",
+        var viewdata = ($('#viewflag').is(':checked')) ? {"ne":ne.toString(),"sw":sw.toString()} : {};
+        var apidata = {
+            muid: "<?=$this->input->get('muid') ?>",
+            fromdate: $('#fromdate').val(),
+            todate: $('#todate').val(),
+            viewflag: viewdata
+            };
+
+        $.ajax(
+            { 
+                url: "http://mu-api.philnic.lan/index.php/getinc", //?callback=?",
                 crossDomain: true,
                 dataType: 'jsonp',
-                data: {muid: "<?=$this->input->get('muid') ?>", fromdate: $('#fromdate').val(), todate: $('#todate').val()}
+                data: apidata
             }).done(function(data, status) {
+                    incidents = data; //JSON.parse(data);
                     //var nd = $.parseJSON(response);
-                    console.log('loaded?');
-                    console.log(status);
-                    console.log(data);//response);
                 }
             //}
         );
-        incidents = {};
+        //incidents = {};
     }
-   
+  
     for (inc in incidents) {
+        if (typeof incidents[inc] != 'object') {
+            break;
+        }
         incidentArray.push(incidents[inc]);
+
         var ll = new google.maps.LatLng(incidents[inc].latitude, incidents[inc].longitude);
         var mo = {clickable: 'true', draggable: 'false', map: 'map', position: ll};
 
@@ -71,8 +88,6 @@ function loadIncidents(firstload) {
         var incid = incidents[inc].id;
         createMarker(ll, incdata, incidents[inc], content);
     } 
-    console.log('incidents loaded:');
-    console.log(incidentArray);
 }
 
 function createMarker(ll, incdata, inc, content) {
@@ -102,6 +117,40 @@ function clearMarkers() {
     incidentArray = [];
 }
 
+function something() {
+
+    $("#pickup_address").autocomplete({
+            //This bit uses the geocoder to fetch address values
+            source: function(request, response) {
+                return {
+                    label: 'Search term: '+request.term,
+                    value: 'test',
+                    latitude: 12,
+                    longitude: 34
+                }
+                /*geocoder.geocode( {'address': request.term, 'region' : 'ca' }, function(results, status) {
+                    response($.map(results, function(item) {
+                        return {
+                            label:  item.formatted_address,
+                            value: item.formatted_address,
+                            latitude: item.geometry.location.lat(),
+                            longitude: item.geometry.location.lng()
+                        }
+                    }));
+                })
+                */
+
+            },
+            //This bit is executed upon selection of an address
+            select: function(event, ui) {
+                $('#hnewmarkerloc').val(ui.item.latitude + ',' + ui.item.longitude);
+                //marker.setPosition(location);
+                map.setCenter($('#newmarkerloc').val());
+            } 
+        });
+
+}
+
 </script>
 
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -128,7 +177,7 @@ function clearMarkers() {
 </style>
 
 <div class="container" id="index_container">
-    <h2>Recent GTA road incidents:</h2>
+    <h2>Recent incidents from <?=$mashuptitle ?>:</h2>
 
     <hr />
     <div id="map_container">
@@ -152,6 +201,11 @@ function clearMarkers() {
         <label for="todate">
             To:
             <input type="text" class="span2" id="todate" />
+        </label>
+        <br />
+        <label for="viewflag">
+            Only map visible area:
+            <input type="checkbox" id="viewflag" />
         </label>
         <br />
         <button id="btn_filter" class="btn large">Filter</button>

@@ -47,13 +47,12 @@ class Index extends CI_Controller {
         } else {
             $data = $this->Incidents->filtered();
         }
-        echo json_encode($data);
+        $data['mashuptitle'] = $this->Mashups->getTitle();
+        echo ($this->input->get('callback')) ? $this->input->get('callback') . '(' . json_encode($data) . ')' : json_encode($data);
         die;
     }
 
     public function updatejob() {
-        //error_log(json_encode($this->input->post()));
-        //error_log('hitting update API');
         if ($this->Jobs->update()) {
             $status = 'ok';
         } else {

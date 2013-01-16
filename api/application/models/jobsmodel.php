@@ -26,26 +26,35 @@ class JobsModel extends CI_Model {
             $data['status'] = 'error';
             return $data;
         }
+
         //existing data from feed
         $feed = json_decode($this->input->get('data'));
+        // update job total
+        $update = array();
+        $update['total'] = $feed->incidentCount;
+        $this->db->where(array('id'=>$job->id));
+        $this->db->update('jobs',$update);
+
+        $total = ($feed->incidentCount > $job->total) ? $feed->incidentCount : $job->total;
+                
         $data['status'] = 'ok';
         $data['job'] = $job;
         $data['perPage'] = $job->perPage;
-        error_log('amount left: ' . ($job->total - $job->done));
+        error_log('amount left: ' . ($total - $job->done));
         if (is_null($job->last_id_processed)||$job->last_id_processed=='') {
             //start from the start
             $data['page'] = 1;
         } else {
-            if ($job->done < $job->total) { // && (($job->total - $job->done) <= $job->perPage)) {
+            if ($job->done < $total) {
                 $data['page'] = ceil($job->done / $job->perPage) + 1; 
                 
-                if (($job->total - $job->done) <= $job->perPage) {
-                    error_log('adjusting per page to: '.($job->total - $job->done));
-                    //$data['perPage'] = $job->total - $job->done;
+                if (($total - $job->done) <= $job->perPage) {
+                    //don't process yet
+                    $data = array();
+                    $data['status'] = 'error';
                 }
             }
         }
-        error_log(json_encode($data)); 
         return $data;
     }
 

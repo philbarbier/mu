@@ -11,7 +11,7 @@ class IncidentsModel extends CI_Model {
     function __construct()
     {
         parent::__construct();
-        $this->db->limit(50);
+        $this->db->limit(150);
     }
 
     function all() {
@@ -39,14 +39,28 @@ class IncidentsModel extends CI_Model {
         
         // use filters, if passed
         if ($this->input->get('fromdate')) {
-            error_log('filtering fromdate: ' . $this->input->get('fromdate'));
             $this->db->where(array('actual_timestamp >=' => date('Y-m-d H:i:s', strtotime($this->input->get('fromdate')))));
         }
         if ($this->input->get('todate')) {
             $todate = ($this->input->get('fromdate')!=$this->input->get('todate')) ? $this->input->get('todate') : date('Y-m-d', strtotime($this->input->get('todate') . ' + 1 day'));
-            error_log('filtering todate: ' . $todate);
             $this->db->where(array('actual_timestamp <=' => date('Y-m-d H:i:s', strtotime($todate))));
         }
+
+        if ($this->input->get('viewflag')) {
+            $vd = $this->input->get('viewflag');
+            
+            $nea = explode(',',$vd['ne']);
+            $nea[0] = trim(substr($nea[0],1));
+            $nea[1] = trim(substr($nea[1],0,strlen($nea[1])-1));
+            
+            $swa = explode(',',$vd['sw']);
+            $swa[0] = trim(substr($swa[0],1));
+            $swa[1] = trim(substr($swa[1],0,strlen($swa[1])-1));
+
+            $this->db->where(array('latitude <='=>$nea[0], 'longitude >='=>$nea[1]));
+            $this->db->where(array('latitude >='=>$swa[0], 'longitude <='=>$swa[1]));
+        }
+
         $this->db->where(array('mashup_id'=>$this->input->get('muid')));
         
         $this->db->order_by('epoch_timestamp', 'desc');
@@ -58,13 +72,10 @@ class IncidentsModel extends CI_Model {
                 $data[$field]= $value;
             }
         }
-
         return $data;
     }
 
     function add_incident() {
-
-        //$sql = "INSERT INTO `incidents` (`epoch_timestamp`, `actual_timestamp`, `latitude`, `longitude`,`mashup_id`, `data`) VALUES ";
 
         $this->mashup_id = $this->input->post('mashupid');
         $this->epoch_timestamp = $this->input->post('epoch_timestamp');

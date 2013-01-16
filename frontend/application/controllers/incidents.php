@@ -35,7 +35,10 @@ class Incidents extends CI_Controller {
     public function view() {
         $data = array();
         $text = file_get_contents('http://mu-api.philnic.lan/index.php/getinc?muid='.$this->input->get('muid'));
-        $data['incidents'] = json_decode($text);
+        $d = json_decode($text);
+
+        $data['incidents'] = $d;
+        $data['mashuptitle'] = $d->mashuptitle; 
         $this->load->view('incidents', $data);
     }
 
