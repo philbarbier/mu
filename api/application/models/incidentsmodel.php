@@ -65,6 +65,7 @@ class IncidentsModel extends CI_Model {
         
         $this->db->order_by('epoch_timestamp', 'desc');
         $query = $this->db->get();
+        //error_log('Executing: ' . $this->db->last_query());
         $data = array();
 
         if ($query->num_rows() > 0) {

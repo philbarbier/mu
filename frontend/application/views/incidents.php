@@ -9,6 +9,7 @@
 var incidentArray = [];
 var marker = [];
 var infoWindow = [];
+var incidents = [];
 var map, bounds, ne, sw;
 var mid = 0;
 
@@ -41,10 +42,10 @@ $(document).ready(function() {
 
 function loadIncidents(firstload) {
     // retrieve all known incidents
+    clearMarkers();
     if (firstload) {
         incidents = <?=json_encode($incidents) ?>;
     } else {
-        clearMarkers();
         //ajax with filters
         var viewdata = ($('#viewflag').is(':checked')) ? {"ne":ne.toString(),"sw":sw.toString()} : {};
         var apidata = {
@@ -66,9 +67,16 @@ function loadIncidents(firstload) {
                 }
             //}
         );
-        //incidents = {};
     }
-  
+
+    // need to give it some time to get the AJAX response back 
+    setTimeout(function() {
+        processIncidents();
+    }, 500);
+
+}
+
+function processIncidents() {
     for (inc in incidents) {
         if (typeof incidents[inc] != 'object') {
             break;
@@ -88,6 +96,7 @@ function loadIncidents(firstload) {
         var incid = incidents[inc].id;
         createMarker(ll, incdata, incidents[inc], content);
     } 
+
 }
 
 function createMarker(ll, incdata, inc, content) {
@@ -115,6 +124,7 @@ function clearMarkers() {
     });
     marker = [];
     incidentArray = [];
+    //incidents = {};
 }
 
 function something() {
